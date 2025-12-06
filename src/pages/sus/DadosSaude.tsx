@@ -10,7 +10,7 @@ import {
   CalendarIcon
 } from "../../components/Icons";
 import "./DadosSaude.css";
-import {ChartViewer} from "../../components/ChartViewer";
+import { ChartViewer } from "../../components/ChartViewer";
 import { LoadingState } from "../../components/common/LoadingState";
 
 interface StaticChartData {
@@ -31,11 +31,17 @@ export default function DadosSaudeAvancado() {
   const [staticLoading, setStaticLoading] = useState(true);
   const [staticError, setStaticError] = useState<string | null>(null);
 
+  // 👉 Usa o base path do GitHub Pages automaticamente
+  const base = import.meta.env.BASE_URL || "/";
+
   useEffect(() => {
     const loadStaticData = async () => {
       try {
-        const response = await fetch("/charts/metadata.json");
+        // 👉 caminho corrigido para funcionar no GitHub Pages
+        const response = await fetch(`${base}charts/metadata.json`);
+
         if (!response.ok) throw new Error("Gráficos estáticos não encontrados");
+
         const data = await response.json();
         setStaticData(data);
         setStaticError(null);
@@ -47,13 +53,13 @@ export default function DadosSaudeAvancado() {
     };
 
     loadStaticData();
-  }, []);
+  }, [base]);
 
-  const getStaticChartUrl = (chartName: string) => `/charts/${chartName}`;
+  const getStaticChartUrl = (chartName: string) => `${base}charts/${chartName}`;
 
   const handleDownload = (chartName: string) => {
     const link = document.createElement("a");
-    link.href = `/charts/${chartName}`;
+    link.href = getStaticChartUrl(chartName);
     link.download = chartName;
     document.body.appendChild(link);
     link.click();
@@ -131,13 +137,12 @@ export default function DadosSaudeAvancado() {
         </div>
       </div>
 
-{/* GRÁFICOS COM ZOOM */}
-      
+      {/* GRÁFICOS */}
       <div className="section">
         <h2 className="section-title">
           <StatsIcon style={{ marginRight: "8px" }} /> Série Temporal
         </h2>
-        <ChartViewer 
+        <ChartViewer
           url={getStaticChartUrl("time_series.svg")}
           title="Evolução Temporal das Internações"
           onDownload={() => handleDownload("time_series.svg")}
@@ -149,12 +154,12 @@ export default function DadosSaudeAvancado() {
           <CalendarIcon style={{ marginRight: "8px" }} /> Sazonalidade
         </h2>
         <div className="heatmaps-grid">
-          <ChartViewer 
+          <ChartViewer
             url={getStaticChartUrl("heatmap_count.svg")}
             title="Mapa de Calor: Frequência Absoluta"
             onDownload={() => handleDownload("heatmap_count.svg")}
           />
-          <ChartViewer 
+          <ChartViewer
             url={getStaticChartUrl("heatmap_share.svg")}
             title="Mapa de Calor: Intensidade Relativa"
             onDownload={() => handleDownload("heatmap_share.svg")}
@@ -167,12 +172,12 @@ export default function DadosSaudeAvancado() {
           <PessoaIcon style={{ marginRight: "8px" }} /> Distribuição Demográfica
         </h2>
         <div className="distribution-grid">
-          <ChartViewer 
+          <ChartViewer
             url={getStaticChartUrl("sex_distribution_pie.svg")}
             title="Distribuição por Sexo (Pizza)"
             onDownload={() => handleDownload("sex_distribution_pie.svg")}
           />
-          <ChartViewer 
+          <ChartViewer
             url={getStaticChartUrl("sex_distribution_bar.svg")}
             title="Comparativo por Sexo (Barras)"
             onDownload={() => handleDownload("sex_distribution_bar.svg")}
@@ -184,10 +189,10 @@ export default function DadosSaudeAvancado() {
         <h2 className="section-title">
           <PessoaIcon style={{ marginRight: "8px" }} /> Distribuição Etária
         </h2>
-        <ChartViewer 
-            url={getStaticChartUrl("age_distribution.svg")}
-            title="Histograma de Idades"
-            onDownload={() => handleDownload("age_distribution.svg")}
+        <ChartViewer
+          url={getStaticChartUrl("age_distribution.svg")}
+          title="Histograma de Idades"
+          onDownload={() => handleDownload("age_distribution.svg")}
         />
       </div>
 
@@ -195,10 +200,10 @@ export default function DadosSaudeAvancado() {
         <h2 className="section-title">
           <HospitalIcon style={{ marginRight: "8px" }} /> Grupos CID-10
         </h2>
-        <ChartViewer 
-            url={getStaticChartUrl("cid_distribution.svg")}
-            title="Principais Diagnósticos"
-            onDownload={() => handleDownload("cid_distribution.svg")}
+        <ChartViewer
+          url={getStaticChartUrl("cid_distribution.svg")}
+          title="Principais Diagnósticos"
+          onDownload={() => handleDownload("cid_distribution.svg")}
         />
       </div>
 
@@ -206,17 +211,18 @@ export default function DadosSaudeAvancado() {
         <h2 className="section-title">
           <WarningIcon style={{ marginRight: "8px" }} /> Mortalidade no Tempo
         </h2>
-        <ChartViewer 
-            url={getStaticChartUrl("mortality_time_series.svg")}
-            title="Taxa de Mortalidade (% no período)"
-            onDownload={() => handleDownload("mortality_time_series.svg")}
+        <ChartViewer
+          url={getStaticChartUrl("mortality_time_series.svg")}
+          title="Taxa de Mortalidade (% no período)"
+          onDownload={() => handleDownload("mortality_time_series.svg")}
         />
       </div>
 
       <div className="footer">
         Versão Otimizada • Dados SIH/SUS • Rio de Janeiro
         <div style={{ fontSize: "0.9em", color: "#666", marginTop: "5px" }}>
-          Gráficos gerados em {new Date(staticData.generated_at).toLocaleDateString("pt-BR")}
+          Gráficos gerados em{" "}
+          {new Date(staticData.generated_at).toLocaleDateString("pt-BR")}
         </div>
       </div>
     </div>
